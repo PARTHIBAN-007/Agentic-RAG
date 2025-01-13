@@ -99,19 +99,6 @@ class AgentState(TypedDict):
     messages: List[HumanMessage | AIMessage | SystemMessage]
     is_last_step: bool
 
-class RateLimitedDuckDuckGo(DuckDuckGoSearchRun):
-    @retry(wait=wait_exponential(multiplier=1, min=4, max=10),
-           stop=stop_after_attempt(3))
-    def run(self, query: str) -> str:
-        """Run search with rate limiting."""
-        try:
-            sleep(2)  # Add delay between requests
-            return super().run(query)
-        except Exception as e:
-            if "Ratelimit" in str(e):
-                sleep(5)  # Longer delay on rate limit
-                return super().run(query)
-            raise e
 
 def create_fallback_agent(chat_model: BaseLanguageModel):
     """Create a LangGraph agent for web research."""
@@ -186,21 +173,7 @@ def process_query(vectorstore, query) -> tuple[str, list]:
         st.error(f"Error: {str(e)}")
         return "I encountered an error. Please try rephrasing your question.", []
 
-def post_process(answer, sources):
-    """Post-process the answer and format sources."""
-    answer = answer.strip()
 
-    # Summarize long answers
-    if len(answer) > 500:
-        summary_prompt = f"Summarize the following answer in 2-3 sentences: {answer}"
-        summary = chat_model.invoke(summary_prompt).content
-        answer = f"{summary}\n\nFull Answer: {answer}"
-    
-    formatted_sources = []
-    for i, source in enumerate(sources, 1):
-        formatted_source = f"{i}. {source.page_content[:200]}..."
-        formatted_sources.append(formatted_source)
-    return answer, formatted_sources
 
 st.title("RAG Agent with Cohere ⌘R")
 
