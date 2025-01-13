@@ -175,7 +175,7 @@ def process_query(vectorstore, query) -> tuple[str, list]:
 
 
 
-st.title("RAG Agent with Cohere ⌘R")
+st.title("Agentic RAG")
 
 uploaded_file = st.file_uploader("Choose a PDF or Image File", type=["pdf", "jpg", "jpeg"])
 
