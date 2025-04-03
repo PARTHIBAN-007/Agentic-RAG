@@ -16,7 +16,6 @@ from typing import TypedDict, List
 from langchain_core.language_models import BaseLanguageModel
 from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
 from time import sleep
-from tenacity import retry, wait_exponential, stop_after_attempt
 from dotenv import load_dotenv
 load_dotenv()
 st.session_state.chat_history = []
@@ -24,7 +23,7 @@ cohere_key = os.getenv("COHERE_API_KEY")
 qdrant_key = os.getenv("QDRANT_API_KEY")
 qdrant_url = os.getenv("QDRANT_URL")
 
-client = QdrantClient(url=qdrant_url, api_key=qdrant_key, timeout=60)
+client = QdrantClient(url=qdrant_url, api_key=qdrant_key)
 client.get_collections()
 
 st.session_state.cohere_api_key = cohere_key
@@ -93,7 +92,6 @@ def create_vector_stores(texts):
         st.error(f"Error in vector store creation: {str(e)}")
         return None
 
-# Define the state schema using TypedDict
 class AgentState(TypedDict):
     """State schema for the agent."""
     messages: List[HumanMessage | AIMessage | SystemMessage]
